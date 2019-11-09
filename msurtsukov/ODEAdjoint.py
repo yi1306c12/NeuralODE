@@ -2,7 +2,7 @@ import numpy
 import torch
 
 from ODEF import ODEF
-from ode_solve import ode_solve
+from mysolver import simplest_euler_ode_solver as ode_solve
 
 class ODEAdjoint(torch.autograd.Function):
     @staticmethod
