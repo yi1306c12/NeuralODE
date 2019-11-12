@@ -14,6 +14,7 @@ class LinearODEF(ODEF):
 
 if __name__ == "__main__":
     import argparse
+    import csv
     import pathlib
 
     import matplotlib.pyplot as plt
@@ -91,6 +92,9 @@ if __name__ == "__main__":
         obs_, ts_ = create_batch()
         z_ = ode_trained(obs_[0], ts_, return_whole_sequence=True)
         loss = F.mse_loss(z_, obs_.detach())
+        with open(str(args.save_path / 'loss.csv'), 'a+') as f:
+            csvwriter = csv.writer(f, delimiter=',')
+            csvwriter.writerow((i, float(loss), float(ts_.max()-ts_.min())))
 
         optimizer.zero_grad()
         loss.backward(retain_graph=True)
