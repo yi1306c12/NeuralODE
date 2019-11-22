@@ -1,15 +1,22 @@
+import torch
 from torch import nn
 
 from ODEF import ODEF
 
-class LinearODEF(ODEF):
-    def __init__(self, W):
-        super(LinearODEF, self).__init__()
-        self.lin = nn.Linear(2, 2, bias=False)
-        self.lin.weight = nn.Parameter(W)
+class TestODEF(ODEF):
+    def __init__(self, A, B, x0):
+        super(TestODEF, self).__init__()
+        self.A = nn.Linear(2, 2, bias=False)
+        self.A.weight = nn.Parameter(A)
+        self.B = nn.Linear(2, 2, bias=False)
+        self.B.weight = nn.Parameter(B)
+        self.x0 = nn.Parameter(x0)
 
     def forward(self, x, t):
-        return self.lin(x)
+        xTx0 = torch.sum(x*self.x0, dim=1)
+        dxdt = torch.sigmoid(xTx0) * self.A(x - self.x0) + torch.sigmoid(-xTx0) * self.B(x + self.x0)
+        return dxdt
+
 
 
 if __name__ == "__main__":
@@ -26,6 +33,7 @@ if __name__ == "__main__":
     from torch.nn import functional as F
 
     from NeuralODE import NeuralODE
+    from mysolver import simplest_euler_ode_solver as ode_solve
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--t_max', type=float, default=6.29*5)#why?
